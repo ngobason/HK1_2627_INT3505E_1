@@ -1,4 +1,6 @@
-#Test 1:
+# Test 1:
+
+```text
 $ curl -i http://127.0.0.1:5000/books
 HTTP/1.1 200 OK
 Server: Werkzeug/3.1.8 Python/3.12.7
@@ -53,9 +55,11 @@ Connection: close
     "total_pages": 4
   }
 }
+```
 
+# Test 2:
 
-#Test 2:
+```text
 $ curl -i "http://127.0.0.1:5000/books?page=2&size=3"
 HTTP/1.1 200 OK
 Server: Werkzeug/3.1.8 Python/3.12.7
@@ -113,10 +117,11 @@ Connection: close
     "total_pages": 4
   }
 }
+```
 
+# Test 3:
 
-
-#Test 3:
+```text
 $ curl -i "http://127.0.0.1:5000/books?q=clean"
 HTTP/1.1 200 OK
 Server: Werkzeug/3.1.8 Python/3.12.7
@@ -161,3 +166,4 @@ Connection: close
     "total_pages": 1
   }
 }
+```
