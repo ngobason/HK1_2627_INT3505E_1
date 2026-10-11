@@ -1,0 +1,415 @@
+openapi: 3.0.3
+
+info:
+  title: Pet Store
+  version: 1.0.0
+  description: Quản lý thú cưng trong Petstore
+  contact:
+    name: Petstore API Team
+    email: api@petstore.example.com
+
+servers:
+  - url: http://localhost:5000/v1
+    description: Local development server
+
+tags:
+  - name: pets
+    description: Các API quản lý thú cưng
+
+paths:
+  /pets:
+    get:
+      tags:
+        - pets
+      summary: Lấy danh sách pet
+      description: Trả về danh sách pet
+      operationId: listPets
+
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+
+      responses:
+        '200':
+          description: Lấy danh sách pet thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pets'
+              example:
+                - id: 1
+                  name: Milo
+                  tag: cat
+                  status: available
+                - id: 2
+                  name: Lucky
+                  tag: dog
+                  status: pending
+
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - pets
+      summary: Tạo pet mới
+      description: Tạo một pet mới
+      operationId: createPet
+
+      security:
+        - bearerAuth: []
+
+      requestBody:
+        required: true
+        description: Thông tin pet cần tạo
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePetInput'
+            example:
+              name: Milo
+              tag: cat
+              status: available
+
+      responses:
+        '201':
+          description: Tạo pet thành công
+          headers:
+            Location:
+              description: URL của pet vừa được tạo
+              schema:
+                type: string
+              example: /v1/pets/1
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+              example:
+                id: 1
+                name: Milo
+                tag: cat
+                status: available
+
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /pets/{petId}:
+    parameters:
+      - $ref: '#/components/parameters/PetId'
+
+    get:
+      tags:
+        - pets
+      summary: Lấy thông tin một pet
+      description: Trả về thông tin chi tiết của pet theo petId
+      operationId: getPetById
+
+      responses:
+        '200':
+          description: Lấy pet thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+              example:
+                id: 1
+                name: Milo
+                tag: cat
+                status: available
+
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    patch:
+      tags:
+        - pets
+      summary: Cập nhật một phần thông tin pet
+      description: Cập nhật một hoặc nhiều trường của pet
+      operationId: patchPet
+
+      security:
+        - bearerAuth: []
+
+      requestBody:
+        required: true
+        description: Các trường của pet cần cập nhật
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePetInput'
+            example:
+              name: Milo Updated
+              status: pending
+
+      responses:
+        '200':
+          description: Cập nhật pet thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+              example:
+                id: 1
+                name: Milo Updated
+                tag: cat
+                status: pending
+
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      tags:
+        - pets
+      summary: Xóa pet
+      description: Xóa pet khỏi Petstore theo petId
+      operationId: deletePet
+
+      security:
+        - bearerAuth: []
+
+      responses:
+        '204':
+          description: Xóa pet thành công, không có response body
+
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    Pet:
+      type: object
+      required:
+        - id
+        - name
+        - status
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+          readOnly: true
+          example: 1
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Milo
+        tag:
+          type: string
+          maxLength: 50
+          example: cat
+        status:
+          type: string
+          enum:
+            - available
+            - pending
+            - sold
+          example: available
+
+    Pets:
+      type: array
+      items:
+        $ref: '#/components/schemas/Pet'
+      example:
+        - id: 1
+          name: Milo
+          tag: cat
+          status: available
+        - id: 2
+          name: Lucky
+          tag: dog
+          status: pending
+
+    CreatePetInput:
+      type: object
+      required:
+        - name
+        - status
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Milo
+        tag:
+          type: string
+          maxLength: 50
+          example: cat
+        status:
+          type: string
+          enum:
+            - available
+            - pending
+            - sold
+          example: available
+
+    UpdatePetInput:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Milo Updated
+        tag:
+          type: string
+          maxLength: 50
+          example: cat
+        status:
+          type: string
+          enum:
+            - available
+            - pending
+            - sold
+          example: pending
+
+    Error:
+      type: object
+      required:
+        - status
+        - title
+      properties:
+        type:
+          type: string
+          format: uri
+          example: https://api.petstore.com/errors/pet-not-found
+        title:
+          type: string
+          example: Pet not found
+        status:
+          type: integer
+          example: 404
+        detail:
+          type: string
+          example: Pet with id 100 was not found
+        instance:
+          type: string
+          example: /v1/pets/100
+
+  parameters:
+    PetId:
+      name: petId
+      in: path
+      required: true
+      description: ID duy nhất của pet
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+      example: 1
+
+    Limit:
+      name: limit
+      in: query
+      required: false
+      description: Số lượng pet tối đa cần trả về
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      example: 20
+
+  responses:
+    BadRequest:
+      description: Request không hợp lệ
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: https://api.petstore.com/errors/bad-request
+            title: Bad request
+            status: 400
+            detail: Request parameters are invalid
+            instance: /v1/pets
+
+    Unauthorized:
+      description: Thiếu hoặc sai thông tin xác thực
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: https://api.petstore.com/errors/unauthorized
+            title: Unauthorized
+            status: 401
+            detail: Bearer token is missing or invalid
+            instance: /v1/pets
+
+    NotFound:
+      description: Không tìm thấy pet
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: https://api.petstore.com/errors/pet-not-found
+            title: Pet not found
+            status: 404
+            detail: Pet with the specified id was not found
+            instance: /v1/pets/100
+
+    ValidationError:
+      description: Dữ liệu đầu vào không hợp lệ
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: https://api.petstore.com/errors/validation-error
+            title: Validation failed
+            status: 422
+            detail: name must not be empty
+            instance: /v1/pets
+
+    InternalServerError:
+      description: Lỗi không mong đợi phía server
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            type: https://api.petstore.com/errors/internal-server-error
+            title: Internal server error
+            status: 500
+            detail: An unexpected error occurred
+            instance: /v1/pets
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
