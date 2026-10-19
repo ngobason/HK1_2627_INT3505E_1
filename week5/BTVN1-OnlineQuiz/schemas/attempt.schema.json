@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/attempt.schema.json",
+  "title": "Attempt",
+  "description": "Luot lam bai; server cham diem sau khi nop bai.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "quiz_id", "participant_name", "status", "answers", "started_at", "submitted_at", "score"],
+  "properties": {
+    "id": {"type": "integer", "minimum": 1, "readOnly": true},
+    "quiz_id": {"type": "integer", "minimum": 1},
+    "participant_name": {"type": "string", "minLength": 1, "maxLength": 100},
+    "status": {"type": "string", "enum": ["in_progress", "submitted"]},
+    "answers": {
+      "type": "array", "maxItems": 100,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["question_id", "selected_option"],
+        "properties": {
+          "question_id": {"type": "integer", "minimum": 1},
+          "selected_option": {"type": "string", "enum": ["A", "B", "C", "D"]}
+        }
+      }
+    },
+    "started_at": {"type": "string", "format": "date-time", "readOnly": true},
+    "submitted_at": {"type": ["string", "null"], "format": "date-time", "readOnly": true},
+    "score": {"type": ["number", "null"], "minimum": 0, "readOnly": true}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "submitted"}}, "required": ["status"]},
+      "then": {
+        "properties": {
+          "submitted_at": {"type": "string", "format": "date-time"},
+          "score": {"type": "number", "minimum": 0}
+        }
+      },
+      "else": {
+        "properties": {
+          "submitted_at": {"type": "null"},
+          "score": {"type": "null"}
+        }
+      }
+    }
+  ],
+  "examples": [{
+    "id": 5001,
+    "quiz_id": 1,
+    "participant_name": "Nguyen Van A",
+    "status": "submitted",
+    "answers": [{"question_id": 101, "selected_option": "B"}],
+    "started_at": "2026-10-19T09:05:00Z",
+    "submitted_at": "2026-10-19T09:12:00Z",
+    "score": 1
+  }]
+}

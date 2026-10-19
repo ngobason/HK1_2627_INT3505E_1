@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/question.schema.json",
+  "title": "Question",
+  "description": "Cau hoi trac nghiem 4 lua chon, dung 1 dap an.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "quiz_id", "content", "options", "correct_option", "points", "position"],
+  "properties": {
+    "id": {"type": "integer", "minimum": 1, "readOnly": true},
+    "quiz_id": {"type": "integer", "minimum": 1},
+    "content": {"type": "string", "minLength": 5, "maxLength": 2000},
+    "options": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["A", "B", "C", "D"],
+      "properties": {
+        "A": {"type": "string", "minLength": 1, "maxLength": 500},
+        "B": {"type": "string", "minLength": 1, "maxLength": 500},
+        "C": {"type": "string", "minLength": 1, "maxLength": 500},
+        "D": {"type": "string", "minLength": 1, "maxLength": 500}
+      }
+    },
+    "correct_option": {"type": "string", "enum": ["A", "B", "C", "D"], "writeOnly": true},
+    "points": {"type": "integer", "minimum": 1, "maximum": 10, "default": 1},
+    "position": {"type": "integer", "minimum": 1}
+  },
+  "examples": [{
+    "id": 101,
+    "quiz_id": 1,
+    "content": "HTTP status nao dung khi tao tai nguyen thanh cong?",
+    "options": {"A": "200", "B": "201", "C": "400", "D": "404"},
+    "correct_option": "B",
+    "points": 1,
+    "position": 1
+  }]
+}
