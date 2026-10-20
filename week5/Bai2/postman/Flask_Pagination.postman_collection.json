@@ -1,0 +1,483 @@
+{
+  "info": {
+    "_postman_id": "5a90da61-10c3-4722-b808-6a11be3a42aa",
+    "name": "Bai 2 - Flask Pagination (Rut gon)",
+    "description": "13 requests: tạo 2 Category + 5 Book; offset, cursor, genre + multi-key sort, lỗi sort. Chạy từ trên xuống bằng Postman Collection Runner. Mỗi lần chạy sinh slug riêng.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 - Tạo dữ liệu mẫu",
+      "item": [
+        {
+          "name": "01 POST Category: Fiction",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('run_id', Date.now().toString(36));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "const item = pm.response.json();",
+                  "pm.collectionVariables.set('fiction_id', item.id);",
+                  "pm.collectionVariables.set('fiction_genre', item.slug);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/categories"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Fiction {{run_id}}\",\n  \"slug\": \"fiction-{{run_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02 POST Category: Technology",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "const item = pm.response.json();",
+                  "pm.collectionVariables.set('technology_id', item.id);",
+                  "pm.collectionVariables.set('technology_genre', item.slug);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/categories"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Technology {{run_id}}\",\n  \"slug\": \"technology-{{run_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Book A (Alpha, 50000)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('book_A_id', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/books"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Alpha\",\n  \"isbn\": \"LAB2A{{run_id}}\",\n  \"price_vnd\": 50000,\n  \"stock\": 10,\n  \"category_id\": {{fiction_id}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Book B (Alpha, 50000)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('book_B_id', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/books"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Alpha\",\n  \"isbn\": \"LAB2B{{run_id}}\",\n  \"price_vnd\": 50000,\n  \"stock\": 10,\n  \"category_id\": {{fiction_id}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Book C (Low, 30000)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('book_C_id', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/books"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Low\",\n  \"isbn\": \"LAB2C{{run_id}}\",\n  \"price_vnd\": 30000,\n  \"stock\": 10,\n  \"category_id\": {{fiction_id}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Book D (High, 80000)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('book_D_id', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/books"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"High\",\n  \"isbn\": \"LAB2D{{run_id}}\",\n  \"price_vnd\": 80000,\n  \"stock\": 10,\n  \"category_id\": {{fiction_id}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST Book E (Tech Low, 30000)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('book_E_id', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/books"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Tech Low\",\n  \"isbn\": \"LAB2E{{run_id}}\",\n  \"price_vnd\": 30000,\n  \"stock\": 10,\n  \"category_id\": {{technology_id}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 - Offset",
+      "item": [
+        {
+          "name": "Offset: first page, limit=2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const r=pm.response.json();",
+                  "const expected=['C','A'].map(k => Number(pm.collectionVariables.get('book_'+k+'_id')));",
+                  "pm.expect(r.data.map(x => x.id)).to.eql(expected);",
+                  "pm.expect(r.page.next).to.eql(2);",
+                  "pm.expect(r.page.total).to.eql(4);",
+                  "pm.expect(r.more).to.eql(true);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/books?strategy=offset&genre={{fiction_genre}}&sort=price%2C-title&limit=2&offset=0"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Offset: second page, offset=2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const r=pm.response.json();",
+                  "const expected=['B','D'].map(k => Number(pm.collectionVariables.get('book_'+k+'_id')));",
+                  "pm.expect(r.data.map(x => x.id)).to.eql(expected);",
+                  "pm.expect(r.page.next).to.eql(null);",
+                  "pm.expect(r.more).to.eql(false);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/books?strategy=offset&genre={{fiction_genre}}&sort=price%2C-title&limit=2&offset=2"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 - Cursor",
+      "item": [
+        {
+          "name": "Cursor: first page (save cursor)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const r=pm.response.json();",
+                  "const expected=['C','A'].map(k => Number(pm.collectionVariables.get('book_'+k+'_id')));",
+                  "pm.expect(r.data.map(x => x.id)).to.eql(expected);",
+                  "pm.expect(r.more).to.eql(true);",
+                  "pm.expect(r.page.next).to.be.a('string');",
+                  "pm.collectionVariables.set('next_cursor', r.page.next);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/books?strategy=cursor&genre={{fiction_genre}}&sort=price%2C-title&limit=2"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cursor: second page using saved token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const r=pm.response.json();",
+                  "const expected=['B','D'].map(k => Number(pm.collectionVariables.get('book_'+k+'_id')));",
+                  "pm.expect(r.data.map(x => x.id)).to.eql(expected);",
+                  "pm.expect(r.more).to.eql(false);",
+                  "pm.expect(r.page.next).to.eql(null);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/books?strategy=cursor&genre={{fiction_genre}}&sort=price%2C-title&limit=2&cursor={{next_cursor}}"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 - Filter + Multi-sort",
+      "item": [
+        {
+          "name": "Filter fiction only + multikey",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const r=pm.response.json();",
+                  "const expected=['C','A','B','D'].map(k => Number(pm.collectionVariables.get('book_'+k+'_id')));",
+                  "pm.expect(r.data.map(x => x.id)).to.eql(expected);",
+                  "pm.expect(r.page.total).to.eql(4);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/books?genre={{fiction_genre}}&sort=price%2C-title&limit=20"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 - Lỗi sort",
+      "item": [
+        {
+          "name": "400 bad_sort",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400 bad_sort', () => pm.response.to.have.status(400));",
+                  "pm.expect(pm.response.json().error).to.eql('bad_sort');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/books?sort=price%2Cfoo"
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:5000",
+      "type": "string"
+    },
+    {
+      "key": "run_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "fiction_id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
