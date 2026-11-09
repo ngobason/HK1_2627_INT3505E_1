@@ -144,3 +144,10 @@ curl -i -X POST http://127.0.0.1:5000/api/v1/products \
 ### 14. Số lượng không hợp lệ – 422
 
 ![Order Validation Error](images/14-order-validation-error.png)
+
+
+## Kiểm thử tự động (Pytest)
+
+Kiểm thử POST tạo đơn hàng và GET sử dụng eager loading.
+
+![Pytest Results](images/pytest-results.png)
