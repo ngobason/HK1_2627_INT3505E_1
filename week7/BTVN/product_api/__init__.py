@@ -23,5 +23,7 @@ def create_app(config=None):
     app.register_blueprint(products_bp)
     from .api.orders import orders_bp
     app.register_blueprint(orders_bp)
+    from .api.health import health_bp
+    app.register_blueprint(health_bp)
     register_error_handlers(app)
     return app
