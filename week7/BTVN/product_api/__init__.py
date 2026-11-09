@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, app
 
 from .extensions import db, migrate
 from .errors import register_error_handlers
@@ -21,5 +21,7 @@ def create_app(config=None):
     from . import models
     from .api.products import products_bp
     app.register_blueprint(products_bp)
+    from .api.orders import orders_bp
+    app.register_blueprint(orders_bp)
     register_error_handlers(app)
     return app

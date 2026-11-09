@@ -122,3 +122,25 @@ curl -i -X POST http://127.0.0.1:5000/api/v1/products \
 ```
 
 ![Lỗi kiểm tra dữ liệu](images/09-validation-error.png)
+
+## Kiểm thử Order API
+
+### 10. Tạo sản phẩm cho đơn hàng – 201
+
+![Tạo hai sản phẩm](images/10-create-products-for-order.png)
+
+### 11. Tạo đơn hàng nhiều sản phẩm – 201
+
+![Tạo đơn hàng](images/11-create-order.png)
+
+### 12. Lấy chi tiết đơn hàng – 200
+
+![GET đơn hàng](images/12-get-order.png)
+
+### 13. Đơn hàng không tồn tại – 404
+
+![Order Not Found](images/13-order-not-found.png)
+
+### 14. Số lượng không hợp lệ – 422
+
+![Order Validation Error](images/14-order-validation-error.png)
