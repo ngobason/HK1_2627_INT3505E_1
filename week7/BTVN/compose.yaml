@@ -1,0 +1,15 @@
+services:
+  api:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      DB_URL: sqlite:////data/products.db
+    volumes:
+      - products_data:/data
+    command: >
+      sh -c "python -m flask --app app db upgrade &&
+             exec gunicorn --bind 0.0.0.0:5000 app:app"
+
+volumes:
+  products_data:
