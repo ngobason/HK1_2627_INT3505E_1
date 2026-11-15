@@ -125,3 +125,51 @@ lab08-starter/
 
 - OpenAPI cố ý chứa lỗi nên các công cụ contract check phải fail **trước khi sửa**.
 - `pytest` và Newman đều chạy được độc lập sau khi đã cài dependency, không cần Postman GUI.
+
+
+## Lab 3 – API Testing with Newman
+
+### 1. Install dependencies
+
+```powershell
+pip install -r requirements.txt
+npm install -g newman
+```
+
+### 2. Start Flask API
+
+Run in the `lab08-starter` directory:
+
+```powershell
+New-Item -ItemType Directory -Path instance -Force
+python app.py
+```
+
+API runs at http://127.0.0.1:5000.
+
+### 3. Run Newman tests
+
+Open a second terminal:
+
+```powershell
+newman run postman/books-api.postman_collection.json -e postman/local.postman_environment.json -r "cli,junit" --reporter-junit-export reports/junit.xml
+```
+
+### 4. Results
+
+- 7 requests: 5 happy paths and 2 error paths.
+- 14 assertions passed.
+- 0 failures.
+- Total duration: 646 ms.
+- JUnit report: `junit.xml`.
+
+
+### 5. Test Evidence
+
+Newman execution results:
+- Requests: 7/7 passed
+- Assertions: 14/14 passed
+- Failures: 0
+- Duration: 646 ms
+
+![Lab 3 - Newman Test Results](reports/lab3-newman-result.png)
