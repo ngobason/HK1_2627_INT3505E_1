@@ -1,0 +1,28 @@
+extends:
+  - spectral:oas
+
+rules:
+  response-200-non-empty-schema:
+    description: HTTP 200 response must define a non-empty schema.
+    severity: error
+    given: "$.paths.*.*.responses['200'].content.*.schema"
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          anyOf:
+            - required: ["$ref"]
+            - required: [type, items]
+              properties:
+                type:
+                  const: array
+                items:
+                  type: object
+                  minProperties: 1
+            - required: [type, properties]
+              properties:
+                type:
+                  const: object
+                properties:
+                  type: object
+                  minProperties: 1
